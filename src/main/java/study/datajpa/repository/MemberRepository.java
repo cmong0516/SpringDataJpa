@@ -3,15 +3,14 @@ package study.datajpa.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import study.datajpa.domain.Member;
 import study.datajpa.dto.MemberDto;
 
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
 import java.util.List;
 
 @Repository
@@ -49,4 +48,12 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Override
     @EntityGraph(attributePaths = "team")
     List<Member> findAll();
+
+    // 변경감지를 사용하려면 기존값과 변경값의 비교가 필요하다
+    // 이를 최소화 하려면 변경하지 않을 작업에 readOnly (hibernate 제공)
+    @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly",value = "true"))
+    Member findReadOnlyByUsername(String username);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    List<Member> findLockByUsername(String username);
 }

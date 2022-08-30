@@ -201,7 +201,17 @@ public class MemberRepositoryTest {
         for (Member member : members) {
             System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
         }
+    }
 
+    @Test
+    public void queryHint() {
+        Member member1 = memberRepository.save(new Member("member1", 10));
+        em.flush();
+        em.clear();
 
+        Member findMember = memberRepository.findById(member1.getId()).get();
+        findMember.setUsername("member2");
+
+        em.flush();
     }
 }
