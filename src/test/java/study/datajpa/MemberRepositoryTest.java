@@ -166,4 +166,42 @@ public class MemberRepositoryTest {
         assertThat(resultCount).isEqualTo(3);
         assertThat(member5.getAge()).isEqualTo(41);
     }
+
+    @Test
+    public void findMemberLazy() {
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 20, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+//        List<Member> members = memberRepository.findAll();
+//        List<Member> members = memberRepository.findMemberFetchJoin();
+        // join fetch 를 사용한 메서드 findMemberFetchJoin 을 사용하면 쿼리가 한번 나간다.
+        // findAll override 후
+
+        List<Member> members = memberRepository.findAll();
+
+        // 미리 필요한 데이터를 다 당겨왔다.
+        // @EntityGraph(attributePaths = "team")
+
+        for (Member member : members) {
+            System.out.println("member = " + member);
+        }
+
+
+        // Fetch LAZY 해놔서 Team 을 조회할 때마다 쿼리를 날려서 가져온다.
+        for (Member member : members) {
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
+        }
+
+
+    }
 }
