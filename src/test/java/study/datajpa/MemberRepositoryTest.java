@@ -17,6 +17,8 @@ import study.datajpa.dto.MemberDto;
 import study.datajpa.repository.MemberRepository;
 import study.datajpa.repository.TeamRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,6 +33,8 @@ public class MemberRepositoryTest {
     MemberRepository memberRepository;
     @Autowired
     TeamRepository teamRepository;
+    @PersistenceContext
+    EntityManager em;
 
     @Test
     public void testMember() {
@@ -77,7 +81,7 @@ public class MemberRepositoryTest {
         Team teamA = new Team("teamA");
         teamRepository.save(teamA);
 
-        Member member = new Member("AAA",10);
+        Member member = new Member("AAA", 10);
         member.setTeam(teamA);
         memberRepository.save(member);
 
@@ -90,8 +94,8 @@ public class MemberRepositoryTest {
 
     @Test
     public void findByNames() {
-        Member m1 = new Member("AAA",10);
-        Member m2 = new Member("AAA",20);
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("AAA", 20);
         memberRepository.save(m1);
         memberRepository.save(m2);
 
@@ -134,5 +138,32 @@ public class MemberRepositoryTest {
         assertThat(page.getTotalPages()).isEqualTo(2);
         assertThat(page.isFirst()).isTrue();
         assertThat(page.hasNext()).isTrue();
+    }
+
+    @Test
+    public void bulkUpdate() {
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 19));
+        memberRepository.save(new Member("member3", 20));
+        memberRepository.save(new Member("member4", 21));
+        memberRepository.save(new Member("member5", 40));
+
+        int resultCount = memberRepository.bulkAgePlus(20);
+
+        em.flush();
+        em.clear();
+
+        List<Member> result = memberRepository.findByUsername("member5");
+        Member member5 = result.get(0);
+
+        System.out.println("member5 = " + member5);
+        // 40 살로 나온다.
+        // 1차캐시 (영속성 컨텍스트) 에서는 40살 .
+        // DB 에는 41살 .
+        // em.flush , em.clear 해줘야함.
+
+
+        assertThat(resultCount).isEqualTo(3);
+        assertThat(member5.getAge()).isEqualTo(41);
     }
 }

@@ -11,6 +11,8 @@ import study.datajpa.repository.MemberJpaRepository;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest
 @Transactional
 @Rollback(value = false)
@@ -26,10 +28,10 @@ public class MemberJpaRepositoryTest {
 
         Member findMember = memberJpaRepository.find(member.getId());
 
-        Assertions.assertThat(findMember.getId()).isEqualTo(member.getId());
-        Assertions.assertThat(findMember.getUsername()).isEqualTo(member.getUsername());
+        assertThat(findMember.getId()).isEqualTo(member.getId());
+        assertThat(findMember.getUsername()).isEqualTo(member.getUsername());
 
-        Assertions.assertThat(findMember).isEqualTo(member);
+        assertThat(findMember).isEqualTo(member);
     }
 
     @Test
@@ -43,20 +45,20 @@ public class MemberJpaRepositoryTest {
         Member findMember1 = memberJpaRepository.findById(member1.getId()).get();
         Member findMember2 = memberJpaRepository.findById(member2.getId()).get();
 
-        Assertions.assertThat(findMember1).isEqualTo(member1);
-        Assertions.assertThat(findMember2).isEqualTo(member2);
+        assertThat(findMember1).isEqualTo(member1);
+        assertThat(findMember2).isEqualTo(member2);
 
         List<Member> all = memberJpaRepository.findAll();
-        Assertions.assertThat(all.size()).isEqualTo(2);
+        assertThat(all.size()).isEqualTo(2);
 
         long count = memberJpaRepository.count();
-        Assertions.assertThat(count).isEqualTo(2);
+        assertThat(count).isEqualTo(2);
 
         memberJpaRepository.delete(member1);
         memberJpaRepository.delete(member2);
 
         long count1 = memberJpaRepository.count();
-        Assertions.assertThat(count1).isEqualTo(0);
+        assertThat(count1).isEqualTo(0);
     }
 
     @Test
@@ -69,9 +71,9 @@ public class MemberJpaRepositoryTest {
 
         List<Member> result = memberJpaRepository.findByUsernameAndAgeGreaterThen("AAA", 15);
 
-        Assertions.assertThat(result.get(0).getUsername()).isEqualTo("AAA");
-        Assertions.assertThat(result.get(0).getAge()).isEqualTo(20);
-        Assertions.assertThat(result.size()).isEqualTo(1);
+        assertThat(result.get(0).getUsername()).isEqualTo("AAA");
+        assertThat(result.get(0).getAge()).isEqualTo(20);
+        assertThat(result.size()).isEqualTo(1);
     }
 
     @Test
@@ -90,7 +92,20 @@ public class MemberJpaRepositoryTest {
         long totalCount = memberJpaRepository.totalCount(age);
 
 
-        Assertions.assertThat(members.size()).isEqualTo(3);
-        Assertions.assertThat(totalCount).isEqualTo(5);
+        assertThat(members.size()).isEqualTo(3);
+        assertThat(totalCount).isEqualTo(5);
+    }
+
+    @Test
+    public void bulkUpdate() {
+        memberJpaRepository.save(new Member("member1", 10));
+        memberJpaRepository.save(new Member("member2", 19));
+        memberJpaRepository.save(new Member("member3", 20));
+        memberJpaRepository.save(new Member("member4", 21));
+        memberJpaRepository.save(new Member("member5", 40));
+
+        int resultCount = memberJpaRepository.bulkAgePlus(20);
+
+        assertThat(resultCount).isEqualTo(3);
     }
 }
