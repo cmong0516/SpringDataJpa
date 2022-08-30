@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,6 +116,10 @@ public class MemberRepositoryTest {
 
         Page<Member> page = memberRepository.findByAge(age, pageRequest);
 
+//        Slice<Member> slice = memberRepository.findByAgeSlice(age, pageRequest);
+        // Page 에서 count 쿼리에서 많은 비용이 발생할 경우 slice 를 사용하여 조금더 최적화 할수 있다.
+        // slice 를 사용하면 getTotalElements , totalPages 는 사용불가.
+
         List<Member> content = page.getContent();
         long totalElements = page.getTotalElements();
 
@@ -125,5 +130,9 @@ public class MemberRepositoryTest {
 
         assertThat(content.size()).isEqualTo(3);
         assertThat(page.getTotalElements()).isEqualTo(5);
+        assertThat(page.getNumber()).isEqualTo(0);
+        assertThat(page.getTotalPages()).isEqualTo(2);
+        assertThat(page.isFirst()).isTrue();
+        assertThat(page.hasNext()).isTrue();
     }
 }

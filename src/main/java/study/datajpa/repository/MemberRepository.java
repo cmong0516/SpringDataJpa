@@ -2,6 +2,7 @@ package study.datajpa.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,5 +32,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m from Member m where m.username in :names")
     List<Member> findByNames(@Param("names") List<String> names);
 
+    // count 쿼리는 모든 항목을 조회하기 때문에 쿼리를 나눠서 효율적으로 사용.
+//    @Query(value = "select m from Member m left join m.team t")
+    @Query(value = "select m from Member m ", countQuery = "select count(m.username) from Member m")
     Page<Member> findByAge(int age, Pageable pageable);
+
+    Slice<Member> findByAgeSlice(int age, Pageable pageable);
 }
