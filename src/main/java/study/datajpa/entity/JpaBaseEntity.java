@@ -1,5 +1,7 @@
 package study.datajpa.entity;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.bytebuddy.asm.Advice;
 import org.hibernate.annotations.CollectionId;
 
@@ -10,6 +12,8 @@ import javax.persistence.PreUpdate;
 import java.time.LocalDateTime;
 
 @MappedSuperclass
+@Getter
+@Setter
 public class JpaBaseEntity {
 
     @Column(updatable = false)
